@@ -1,5 +1,4 @@
 #!/bin/env python3
-from copy import deepcopy
 
 def chunk(f, l):
     c = []
@@ -17,55 +16,57 @@ def chunk(f, l):
                 c = [i]
     return c, len(c)
 
+
 with open('inputs/day9') as file:
     disk = list(map(int, file.readline().strip()))
-    counts = deepcopy(disk)
-    cs = 0
+
     inter = []
     inter1 = []
     for i, d in enumerate(disk):
         if i % 2 == 0:
-            inter += [i //2 for _ in range(d) ]
-            inter1 += [i //2 for _ in range(d) ]
+            inter += [i // 2 for _ in range(d)]
+            inter1 += [i // 2 for _ in range(d)]
         else:
-            inter += ['.' for _ in range(d) ]
+            inter += ['.' for _ in range(d)]
 
-    back = len(inter1)
     front = 0
-    chunks = {}
-    while front <= len(inter1):
-        c, l = chunk(inter1[front:], -1)
-        front += l
+    part1 = True
+
+    chunks = []
+    frees = []
+    for i in range(len(inter)):
+        if part1:
+            c, l = [inter[i]], 1
+        else:
+            c, l = chunk(inter[front:], -1)
         if not c:
             break
-        chunks[c[0]] = c
+        if c[0] == '.':
+            frees.append((front, l))
+        else:
+            chunks.append((c, front, l))
+        front += l
 
-    real = []
-    for i, d in enumerate(disk):
-        if i % 2 == 0:
-            print(i, chunks[i // 2])
-        # else:
-    # print(real)
-    # for i, d in enumerate(disk):
-    #     if i % 2 == 0:
-    #         front += d
-    #     else:
-    #         while d >= 0:
-    #             c,l = chunk(reversed(inter1[front:back]), d)
-    #             if c:
-    #                 inter[front:front+l] = c
-    #                 back -= l
-    #                 d -= l
-    #                 front += l
-    #             else:
-    #                 break
-    #
-    #     if '.' not in inter:
-    #         inter = inter[:len(inter1)]
-    #         break
-    #
-    # print(inter)
-    # for i, d in enumerate(inter):
-    #     cs += i * d
-    #
+    chunks.reverse()
+    for fs, fl in frees:
+        print(fs, fl)
+        todel = []
+        for i, (c, cs, cl) in enumerate(chunks):
+            if cs <= fs:
+                break
+            if cl <= fl:
+                inter[fs:fs+cl] = c
+                inter[cs:cs+cl] = ['.' for _ in range(cl)]
+
+                fl -= cl
+                fs += cl
+                todel.append(i)
+        for i in reversed(todel):
+            del chunks[i]
+    print(inter)
+    cs = 0
+    for i, d in enumerate(inter):
+        if d != '.':
+            cs += i * d
     print(cs)
+
