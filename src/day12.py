@@ -2,7 +2,8 @@
 from collections import deque
 import numpy as np
 
-def group_adjacent_2d(grid):
+
+def group_regions(grid):
     R, C = np.shape(grid)
     vis = set()
     groups = []
@@ -31,46 +32,17 @@ def group_adjacent_2d(grid):
             if (r, c) not in vis:
                 group = dfs(r, c, grid[r][c])
                 groups.append(group)
-    
+
     return groups
 
-def count_between_corners(grid, region):
-    # Create a set for fast lookup
-    region_set = set(region)
-    corners = set()  # To store unique corner positions
-
-    for r, c in region:
-        # Check four corners around the cell
-        potential_corners = [
-            (r, c),         # Top-left
-            (r, c + 1),     # Top-right
-            (r + 1, c),     # Bottom-left
-            (r + 1, c + 1)  # Bottom-right
-        ]
-        
-        for corner in potential_corners:
-            # Check if the corner has a mix of inside and outside neighbors
-            x, y = corner
-            adjacent_cells = [
-                (x - 1, y - 1), (x - 1, y),  # Top-left, Top
-                (x, y - 1),     (x, y)       # Left, Center
-            ]
-            # Count neighbors inside the region
-            inside_count = sum(
-                (nx, ny) in region_set for nx, ny in adjacent_cells
-            )
-            # A valid corner has at least one inside and one outside neighbor
-            if 0 < inside_count < len(adjacent_cells):
-                corners.add(corner)
-
-    return len(corners)
 
 with open('inputs/day12') as file:
     grid = np.array([[c for c in line.strip()] for line in file.readlines()])
     R, C = np.shape(grid)
 
     p1 = 0
-    regions = group_adjacent_2d(grid)
+    regions = group_regions(grid)
+
     for region in regions:
         area = set(region)
         perim = set()
@@ -86,12 +58,45 @@ with open('inputs/day12') as file:
         p1 += len(perim) * len(area)
     print(p1)
 
+    def is_corner(grid, plant, r, c, dr, dc):
+        s = 0
+        for nr, nc in [(r + dr, c), (r, c + dc)]:
+            if 0 <= nr < R and 0 <= nc < C:
+                if grid[nr, nc] != plant:
+                    s += 1
+            else:
+                s += 1
+
+        if s == 2 or s == 0:
+            if 0 <= r + dr < R and 0 <= c + dc < C:
+                if grid[r + dr, c + dc] != plant:
+                    return True
+            else:
+                return True
+
+        if s == 3 or s == 2:
+            return True
+        return False
+
+    def get_corners(grid, plant, r, c):
+        corners = 0
+        if is_corner(grid, plant, r, c, -1, -1):  # top left
+            corners += 1
+        if is_corner(grid, plant, r, c, -1, 1):  # top right
+            corners += 1
+        if is_corner(grid, plant, r, c, 1, -1):  # bottom left
+            corners += 1
+        if is_corner(grid, plant, r, c, 1, 1):  # bottom right
+            corners += 1
+
+        return corners
+
     p2 = 0
     for region in regions:
-         print(region[0], count_between_corners(grid, region))
-        #
-        # print(plant, corners)
-        # p2 += corners * len(area)
-    # print(p2)
-
-
+        corners = 0
+        for r, c in region:
+            edges = 0
+            plant = grid[r, c]
+            corners += get_corners(grid, plant, r, c)
+        p2 += corners * len(region)
+    print(p2)
