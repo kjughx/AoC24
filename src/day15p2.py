@@ -14,81 +14,63 @@ def to_dir(c):
         assert False
 
 
-def pushu(grid, r, c, boxes):
-    print(1)
-    nr, nc = r + 1, c
+def pushud(grid, r, c, dr, boxes):
+    nr, nc = r + dr, c
     if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
         return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc)]
-        if grid[nr, nc] == '[':
-            return pushu(grid, nr, nc, boxes)
-        elif grid[nr, nc] == ']':
-            return pushu(grid, nr, nc - 1, boxes)
-        elif grid[nr, nc + 1] == '[':
-            return pushu(grid, nr, nc + 1, boxes)
-        elif grid[nr, nc + 1] == ']':
-            return pushu(grid, nr, nc, boxes)
+
     if grid[nr, nc] == '.' and grid[nr, nc + 1] == '.':
         return boxes
 
-    assert False
+    n = set(boxes)
+    if grid[nr, nc] == '[':
+        p = pushud(grid, nr, nc, dr, boxes + [(nr, nc)])
+        if not p:
+            return []
+        n |= set(p)
+    elif grid[nr, nc] == ']':
+        p = pushud(grid, nr, nc - 1, dr, boxes + [(nr, nc - 1)])
+        if not p:
+            return []
+        n |= set(p)
+
+    if grid[nr, nc + 1] == '[':
+        p = pushud(grid, nr, nc + 1, dr, boxes + [(nr, nc + 1)])
+        if not p:
+            return []
+        n |= set(p)
+    elif grid[nr, nc + 1] == ']':
+        p = pushud(grid, nr, nc, dr, boxes + [(nr, nc)])
+        if not p:
+            return []
+        n |= set(p)
+
+    return n
 
 
-def pushd(grid, r, c, boxes):
-    print(2)
-    nr, nc = r - 1, c
+def pushrl(grid, r, c, dc, boxes):
+    nr, nc = r, c + dc
     if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
         return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc)]
-        if grid[nr, nc] == '[':
-            return pushd(grid, nr, nc, boxes)
-        elif grid[nr, nc] == ']':
-            return pushd(grid, nr, nc - 1, boxes)
-        elif grid[nr, nc + 1] == '[':
-            return pushd(grid, nr, nc + 1, boxes)
-        elif grid[nr, nc + 1] == ']':
-            return pushd(grid, nr, nc, boxes)
-    if grid[nr, nc] == '.' and grid[nr, nc + 1] == '.':
-        return boxes
+    if dc == 1:
+        if grid[nr, nc + 1] == '[':
+            return pushrl(grid, nr, nc + 1, dc, boxes + [(nr, nc + 1)])
+        if grid[nr, nc + 1] == '.':
+            return boxes
 
-    assert False
-
-def pushr(grid, r, c, boxes):
-    nr, nc = r, c + 1
-    if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
-        return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc)]
-        if grid[nr, nc + 1] == ']':
-            return pushr(grid, nr, nc, boxes)
-    if grid[nr, nc + 1] == '.':
-        return boxes
-
-    assert False
-
-
-n = 0
-def pushl(grid, r, c, boxes):
-    global n
-    nr, nc = r, c - 1
-    if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
-        return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc - 1)]
-        return pushl(grid, nr, nc - 1, boxes)
-    if grid[nr, nc] == '.':
-        return boxes
+    if dc == -1:
+        if grid[nr, nc] == ']':
+            return pushrl(grid, nr, nc - 1, dc, boxes + [(nr, nc - 1)])
+        if grid[nr, nc] == '.':
+            return boxes
 
     assert False
 
 with open('inputs/day15') as file:
-    print(4)
     _grid, moves = file.read().split('\n\n')
     moves = [move for move in moves if move != '\n']
 
-    grid2 = []
+    grid = []
     for row in _grid.split('\n'):
         nrow = []
         for c in row:
@@ -98,11 +80,8 @@ with open('inputs/day15') as file:
                 nrow += ['[', ']']
             else:
                 nrow += 2*[c]
-        grid2.append(nrow)
-    grid2 = np.array(grid2)
-
-    grid = grid2
-    print(grid)
+        grid.append(nrow)
+    grid = np.array(grid)
 
     walls = np.where(grid == '#')
     walls = {(r, c) for r, c in zip(walls[0], walls[1])}
@@ -110,7 +89,7 @@ with open('inputs/day15') as file:
 
     r, c = pos[0][0], pos[1][0]
     grid[r, c] = '.'
-    for move in moves[0:2]:
+    for i, move in enumerate(moves):
         dr, dc = to_dir(move)
         nr, nc = r + dr, c + dc
         if (nr, nc) in walls:
@@ -119,28 +98,30 @@ with open('inputs/day15') as file:
             r, c = nr, nc
         elif grid[nr, nc] in '[]':
             to_push = []
-            if move == '^':
-                to_push = pushu(grid, r, c, [])
+            if move in '^v':
+                to_push = pushud(grid, nr, nc, dr, [(nr, nc)]) if grid[nr, nc] == '['  else pushud(grid, nr, nc - 1, dr, [(nr, nc - 1)])
             elif move == '>':
-                to_push = pushr(grid, r, c, [])
-            elif move == 'v':
-                to_push = pushd(grid, r, c, [])
+                to_push = pushrl(grid, nr, nc, dc, [(nr, nc)])
             elif move == '<':
-                to_push = pushl(grid, r, c, [])
+                to_push = pushrl(grid, nr, nc - 1, dc, [(nr, nc - 1)])
 
-            print(to_push)
             if to_push:
+                for r, c in to_push:
+                    grid[r, c] = '.'
+                    grid[r, c + 1] = '.'
                 for r, c in to_push:
                     grid[r + dr, c + dc] = '['
                     grid[r + dr, c + dc + 1] = ']'
 
-                r, c = to_push[0]
-                grid[r, c] = '.'
-                grid[r, c + 1] = '.'
                 r, c = nr, nc
         else:
             print(grid[nr, nc])
             assert False
 
-    print(grid)
+    boxes = np.where(grid == '[')
+    p = 0
+    for r, c in zip(boxes[0], boxes[1]):
+        p += 100 * r + c
+    print(p)
+
 
