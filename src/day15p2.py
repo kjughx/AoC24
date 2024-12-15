@@ -16,19 +16,24 @@ def to_dir(c):
 
 def pushu(grid, r, c, boxes):
     print(1)
-    nr, nc = r + 1, c
+    nr, nc = r - 1, c
     if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
         return []
     if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc)]
+        n = boxes
         if grid[nr, nc] == '[':
-            return pushu(grid, nr, nc, boxes)
-        elif grid[nr, nc] == ']':
-            return pushu(grid, nr, nc - 1, boxes)
-        elif grid[nr, nc + 1] == '[':
-            return pushu(grid, nr, nc + 1, boxes)
-        elif grid[nr, nc + 1] == ']':
-            return pushu(grid, nr, nc, boxes)
+            print(11)
+            n += pushu(grid, nr, nc, boxes + [(nr, nc)])
+        if grid[nr, nc] == ']':
+            print(12)
+            n += pushu(grid, nr, nc - 1, boxes + [(nr, nc)])
+        if grid[nr, nc + 1] == '[':
+            print(13)
+            n += pushu(grid, nr, nc + 1, boxes + [(nr, nc)])
+        if grid[nr, nc + 1] == ']':
+            print(14)
+            n += pushu(grid, nr, nc, boxes + [(nr, nc)])
+        return n
     if grid[nr, nc] == '.' and grid[nr, nc + 1] == '.':
         return boxes
 
@@ -59,10 +64,9 @@ def pushr(grid, r, c, boxes):
     nr, nc = r, c + 1
     if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
         return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
+    if grid[nr, nc + 1] == '[':
         boxes += [(nr, nc)]
-        if grid[nr, nc + 1] == ']':
-            return pushr(grid, nr, nc, boxes)
+        return pushr(grid, nr, nc, boxes)
     if grid[nr, nc + 1] == '.':
         return boxes
 
@@ -75,12 +79,13 @@ def pushl(grid, r, c, boxes):
     nr, nc = r, c - 1
     if grid[nr, nc] == '#' or grid[nr, nc + 1] == '#':
         return []
-    if grid[nr, nc] in '[]' or grid[nr, nc + 1] in '[]':
-        boxes += [(nr, nc - 1)]
+    if grid[r, c] == ']':
+        boxes += [(nr, nc)]
         return pushl(grid, nr, nc - 1, boxes)
     if grid[nr, nc] == '.':
         return boxes
 
+    print(grid[nr, nc])
     assert False
 
 with open('inputs/day15') as file:
@@ -110,7 +115,8 @@ with open('inputs/day15') as file:
 
     r, c = pos[0][0], pos[1][0]
     grid[r, c] = '.'
-    for move in moves[0:2]:
+    for move in moves[0:6]:
+        print(move)
         dr, dc = to_dir(move)
         nr, nc = r + dr, c + dc
         if (nr, nc) in walls:
@@ -120,27 +126,28 @@ with open('inputs/day15') as file:
         elif grid[nr, nc] in '[]':
             to_push = []
             if move == '^':
-                to_push = pushu(grid, r, c, [])
+                to_push = pushu(grid, nr, nc, [])
             elif move == '>':
-                to_push = pushr(grid, r, c, [])
+                to_push = pushr(grid, nr, nc, [])
             elif move == 'v':
-                to_push = pushd(grid, r, c, [])
+                to_push = pushd(grid, nr, nc, [])
             elif move == '<':
-                to_push = pushl(grid, r, c, [])
+                to_push = pushl(grid, nr, nc, [])
 
             print(to_push)
             if to_push:
+                r, c = to_push[0]
+                grid[r, c] = '.'
+                grid[r, c + 1] = '.'
                 for r, c in to_push:
                     grid[r + dr, c + dc] = '['
                     grid[r + dr, c + dc + 1] = ']'
 
-                r, c = to_push[0]
-                grid[r, c] = '.'
-                grid[r, c + 1] = '.'
                 r, c = nr, nc
         else:
             print(grid[nr, nc])
             assert False
 
+    grid[r, c] = '@'
     print(grid)
 
