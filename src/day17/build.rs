@@ -18,23 +18,23 @@ fn combo(operand: char, short: bool) -> &'static str {
         '3' => "$3",
         '4' => {
             if short {
-                "%al"
+                "%r8b"
             } else {
-                "%rax"
+                "%r8"
             }
         }
         '5' => {
             if short {
-                "%cl"
+                "%r9b"
             } else {
-                "%rcx"
+                "%r9"
             }
         }
         '6' => {
             if short {
-                "%dl"
+                "%10b"
             } else {
-                "%rdx"
+                "%r10"
             }
         }
         _ => unreachable!("{operand}"),
@@ -45,16 +45,15 @@ macro_rules! div {
     ($d:expr) => {
         &format!(
             r#"
-        mov $2, %rax
         mov {}, %cl
+        mov $2, %rax
         shl %cl, %rax
         mov %rax, %rcx
 
-        add $16, %rsp
-        pop %rax
+        mov %r8, %rax
+
         xor %rdx, %rdx
         div %rcx
-        sub $24, %rsp
         "#,
             $d
         )
@@ -69,11 +68,19 @@ fn compile() {
     let mut asm = String::from(
         r#"
     .att_syntax
+
+    div:
+        mov $2, %rdx
+        shl %cl, %rdx
+        mov %rdx, %rcx
+
+        xor %rdx, %rdx
+        div %rcx
+
+        ret
+
     .global _run
     _run:
-        push %rax
-        push %rcx
-        push %rdx
     "#,
     );
 
@@ -83,25 +90,20 @@ fn compile() {
         asm += "nop\n";
         match c {
             '0' => {
-                asm += div!(combo(o, true));
-                asm += r#"
-                add $16, %rsp
-
-                pop %rax
-                mov %rcx, %rax
-                push %rax
-
-                sub $16, %rsp
-                "#
+                asm += &format!(
+                    r#"
+                mov %r8, %rax
+                mov {}, %rcx
+                call div
+                mov %rax, %r8
+                "#,
+                    combo(o, false)
+                )
             }
             '1' => {
                 asm += &format!(
                     r#"
-                add $8, %rsp
-                pop %rax
-                xor ${}, %rax
-                push %rax
-                sub $8, %rsp
+                xor ${}, %r9
                 "#,
                     o
                 )
@@ -109,65 +111,51 @@ fn compile() {
             '2' => {
                 asm += &format!(
                     r#"
-                    mov {}, %rax
-                    and $7, %rax
-                    add $8, %rsp
-                    pop %rcx
-                    mov %rax, %rcx
-                    push %rcx
-                    sub $8, %rsp
-
+                    mov {}, %r9
+                    and $7, %r9
                 "#,
                     combo(o, false)
                 )
             }
             '3' => {
                 asm += r#"
-                pop %rdx
-                pop %rcx
-                pop %rax
                 ret
                 "#
             }
             '4' => {
                 asm += r#"
-                pop %rdx
-                pop %rcx
-                xor %rdx, %rcx
-                push %rcx
-                push %rdx
+                xor %r10, %r9
                 "#
             }
             '5' => {
-                asm += &format!(r#"
-                    pop %rdx
-                    pop %rcx
-                    pop %rax
-                    mov {}, %rsi
-                    push %rax
-                    push %rcx
-                    push %rdx
-                "#, combo(o, false))
+                asm += &format!(
+                    r#"
+                    mov {}, %r11
+                "#,
+                    combo(o, false)
+                )
             }
             '6' => {
-                asm += div!(combo(o, true));
-                asm += r#"
-                    mov %rcx, %rdx
-                    add $8, %rsp
-                    pop %rcx
-                    mov %rdx, %rcx
-                    push %rcx
-                    sub $8, %rsp
-                "#
+                asm += &format!(
+                    r#"
+                mov %r8, %rax
+                mov {}, %rcx
+                call div
+                mov %rax, %r9
+                "#,
+                    combo(o, false)
+                )
             }
             '7' => {
-                asm += div!(combo(o, true));
-                asm += r#"
-                    mov %rcx, %rdx
-                    pop %rcx
-                    mov %rdx, %rcx
-                    push %rcx
-                "#
+                asm += &format!(
+                    r#"
+                mov %r8, %rax
+                mov {}, %rcx
+                call div
+                mov %rax, %r10
+                "#,
+                    combo(o, false)
+                )
             }
             _ => unreachable!("{c}, {o}"),
         }

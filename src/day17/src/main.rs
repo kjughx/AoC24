@@ -8,7 +8,7 @@ fn run(mut a: usize, mut b: usize, mut c: usize) -> (usize, usize, usize, usize)
         std::arch::asm!(
             r#"
        call _run
-    "#, inout("rax") a, inout("rcx") b, inout("rdx") c, out("rsi") o
+    "#, inout("r8") a, inout("r9") b, inout("r10") c, out("r11") o
         )
     };
 
@@ -16,6 +16,5 @@ fn run(mut a: usize, mut b: usize, mut c: usize) -> (usize, usize, usize, usize)
 }
 
 fn main() {
-
     dbg!(run(2024, 0, 0));
 }
