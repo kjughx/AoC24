@@ -1,3 +1,14 @@
+use std::time::Instant;
+
+fn bench<F, R>(f: F) -> R
+where
+    F: FnOnce() -> R,
+{
+    let t0 = Instant::now();
+    let result = f(); // Call the function and store the result
+    println!("time used: {:?}", Instant::now().duration_since(t0));
+    result // Return the result of the function
+}
 #[inline(always)]
 fn run(mut a: usize) -> (usize, usize) {
     let o;
@@ -14,7 +25,7 @@ fn run(mut a: usize) -> (usize, usize) {
     return (a, o);
 }
 
-fn runall(mut a: usize) {
+fn runall(mut a: usize) -> Vec<usize> {
     let mut o;
     let mut v = Vec::with_capacity(64);
     loop {
@@ -27,7 +38,7 @@ fn runall(mut a: usize) {
         a = o.0
     }
 
-    println!("{v:?}");
+    return v;
 }
 
 fn f(aa: usize, prog: &[usize], i: usize) -> Option<usize> {
@@ -53,18 +64,34 @@ fn f(aa: usize, prog: &[usize], i: usize) -> Option<usize> {
     return None;
 }
 
-fn main() {
-    let input = include_str!("../program").split('\n').collect::<Vec<&str>>();
-    let prog: Vec<usize> = input[4]
-        .split_once(": ")
-        .unwrap()
-        .1
-        .split(',')
-        .map(|c| str::parse::<usize>(c).unwrap())
-        .collect();
-    let a: usize = str::parse::<usize>(input[0].split(" ").collect::<Vec<&str>>()[2]).unwrap();
-    runall(a);
+fn part1() -> Vec<usize> {
+    let input = include_str!("../program")
+        .split('\n')
+        .collect::<Vec<&str>>();
+    let a: usize = unsafe {
+        str::parse::<usize>(input[0].split(" ").collect::<Vec<&str>>()[2]).unwrap_unchecked()
+    };
+    runall(a)
+}
 
+fn part2() -> usize {
+    let input = include_str!("../program")
+        .split('\n')
+        .collect::<Vec<&str>>();
+    let prog: Vec<usize> = unsafe {
+        input[4]
+            .split_once(": ")
+            .unwrap_unchecked()
+            .1
+            .split(',')
+            .map(|c| str::parse::<usize>(c).unwrap_unchecked())
+            .collect()
+    };
     let a = f(0, &prog, prog.len() - 1).unwrap();
-    println!("{a}");
+    return a;
+}
+
+fn main() {
+    println!("{:?}", bench(part1));
+    println!("{}", bench(part2));
 }
