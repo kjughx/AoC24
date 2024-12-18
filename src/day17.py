@@ -55,7 +55,7 @@ def run(A, B, C, program):
     return output
 
 
-registers, program = open('inputs/day17').read().split('\n\n')
+registers, program = open(0).read().split('\n\n')
 
 A, B, C = list(map(int, re.findall(r"\d+", registers)))
 

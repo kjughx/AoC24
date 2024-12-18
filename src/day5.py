@@ -18,7 +18,7 @@ def swap(row, rules):
                 return True, row
     return False, row
 
-with open('inputs/day5') as file:
+with open(0) as file:
     rules = []
     rows = []
     rule = True

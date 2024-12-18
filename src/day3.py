@@ -6,7 +6,7 @@ def mul(a, b):
 
 pattern1 = re.compile(r"mul\(([0-9]+),[0-9]+\)")
 pattern2 = re.compile(r"mul\(([0-9]+),[0-9]+\)|(don't\(\))|(do\(\))")
-with open('inputs/day3') as file:
+with open(0) as file:
     p1 = 0
     p2 = 0
     do = True

@@ -26,7 +26,7 @@ def push(grid, r, c, dr, dc, boxes):
     else:
         assert False
 
-with open('inputs/day15') as file:
+with open(0) as file:
     _grid, moves = file.read().split('\n\n')
 
     moves = [move for move in moves if move != '\n']

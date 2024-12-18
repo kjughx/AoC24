@@ -2,7 +2,7 @@
 import re
 from collections import deque
 
-with open('inputs/day7') as file:
+with open(0) as file:
     p = 0
     for line in file.readlines():
         line = line.strip('\n')

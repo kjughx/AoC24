@@ -11,7 +11,7 @@ def evolve(x, y, vx, vy, t):
     return (x, y)
 
 
-with open('inputs/day14') as file:
+with open(0) as file:
     robots = {tuple(map(int, re.findall(r"-?\d+", line))) for line in file.readlines()}
     Y = 103
     X = 101

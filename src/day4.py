@@ -16,7 +16,7 @@ def slice(a, r, dr, c, dc, s):
         return []
 
 
-with open('inputs/day4') as file:
+with open(0) as file:
     mat = [[a for a in line.strip()] for line in file.readlines()]
 
     p1 = 0

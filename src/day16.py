@@ -85,7 +85,7 @@ def part2(m, sr, sc, fr, fc, walls):
     print(len(S))
 
 
-with open("inputs/day16") as file:
+with open(0) as file:
     grid = np.array([[c for c in row] for row in file.readlines()])
     R = len(grid)
     C = len(grid[0])

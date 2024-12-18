@@ -1,7 +1,7 @@
 #!/bin/env python3
 from collections import deque
 
-with open('inputs/day11') as file:
+with open(0) as file:
     stones = {int(i): 1 for i in file.readline().split(' ')}
 
     for i in range(75):

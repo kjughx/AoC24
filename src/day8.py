@@ -28,7 +28,7 @@ def inbounds(r, c):
 
     return True
 
-with open('inputs/day8') as file:
+with open(0) as file:
     grid = [[c for c in line.strip()] for line in file.readlines()]
     R, C = (len(grid), len(grid[0]))
     antennas = {}

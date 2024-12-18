@@ -2,7 +2,7 @@
 from collections import deque
 import numpy as np
 
-with open('inputs/day10') as file:
+with open(0) as file:
     grid = np.matrix([[c for c in line.strip()] for line in file.readlines()])
     R, C = np.shape(grid)
 
@@ -32,7 +32,6 @@ with open('inputs/day10') as file:
 
     p = 0
     for head, tail in tails.items():
-        print(head, tail)
         p += len(tail)
 
     print(p)

@@ -17,7 +17,7 @@ def chunk(f, l):
     return c, len(c)
 
 
-with open('inputs/day9') as file:
+with open(0) as file:
     disk = list(map(int, file.readline().strip()))
 
     inter = []
@@ -49,7 +49,6 @@ with open('inputs/day9') as file:
 
     chunks.reverse()
     for fs, fl in frees:
-        print(fs, fl)
         todel = []
         for i, (c, cs, cl) in enumerate(chunks):
             if cs <= fs:
@@ -63,7 +62,6 @@ with open('inputs/day9') as file:
                 todel.append(i)
         for i in reversed(todel):
             del chunks[i]
-    print(inter)
     cs = 0
     for i, d in enumerate(inter):
         if d != '.':

@@ -33,7 +33,7 @@ def walk(fr, fc, corr):
     return m
 
 
-with open('inputs/day18') as file:
+with open(0) as file:
     bs = [tuple(map(int, line.strip('\n').split(',')))
           for line in file.readlines()]
     bs = [(c, r) for r, c in bs]

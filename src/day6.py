@@ -38,7 +38,7 @@ def walk(rc, grid):
     return True, vis
 
 
-with open('inputs/day6') as file:
+with open(0) as file:
     grid = np.matrix([[a for a in row.strip('\n')] for row in file.readlines()])
 
     rc = np.array(np.where(grid == "^"))[:, 0]

@@ -46,7 +46,7 @@ def is_safe_p2(lst, first=True):
 
     return safe
 
-with open('inputs/day2') as file:
+with open(0) as file:
     p1 = 0
     p2 = 0
 

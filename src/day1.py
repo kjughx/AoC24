@@ -2,7 +2,7 @@
 
 import numpy as np
 
-with open('inputs/day1') as f:
+with open(0) as f:
     data = f.readlines()
     left = np.array([int(r.split("  ")[0]) for r in data])
     right = np.array([int(r.split("  ")[1]) for r in data])

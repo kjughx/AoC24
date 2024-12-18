@@ -1,7 +1,7 @@
 #!/bin/env python3
 import re
 
-with open('inputs/day13') as file:
+with open(0) as file:
     p = 0
 
     lines = [line for line in file.readlines()]
