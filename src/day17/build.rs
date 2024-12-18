@@ -43,6 +43,14 @@ fn combo(operand: char, short: bool) -> &'static str {
 
 fn compile() {
     let prog: Vec<char> = include_str!("program")
+        .split_once("\n\n")
+        .unwrap()
+        .1
+        .split_once(": ")
+        .unwrap()
+        .1
+        .strip_suffix('\n')
+        .unwrap()
         .split(',')
         .map(|c| c.chars().next().unwrap())
         .collect();
@@ -104,7 +112,8 @@ fn compile() {
             }
             '3' => {
                 asm += r#"
-                and $7, %r11
+                mov %r11, %rax
+                and $7, %rax
                 ret
                 "#
             }
