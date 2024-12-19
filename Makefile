@@ -15,7 +15,7 @@ $(INPUT):
 	fi
 
 	curl https://adventofcode.com/$(YEAR)/day/$(DAY)/input \
-		--cookie session="$(shell cat ./.session)" > inputs/$(DAY)
+		--cookie session="$(shell cat ./.session)" > inputs/day$(DAY)
 
 $(SRC):
 	cp template.py $(SRC)
