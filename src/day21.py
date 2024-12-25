@@ -1,6 +1,8 @@
 #!/bin/env python3
 import numpy as np
 import heapq
+from collections import deque
+from functools import cache
 
 # pylint: disable=C0114,C0116,C0301,C0209,W1514,C0414,C0200,E0001
 
@@ -60,22 +62,19 @@ def prime(pad):
     R, C = np.shape(pad)
 
     def dfs(sr, sc, fr, fc):
-        q = [(0, sr, sc, '', set())]
+        q = deque([(sr, sc, '', set())])
         paths = []
         d = float('inf')
-        md = float('inf')
-        mt = float('inf')
 
         while q:
-            n, r, c, path, vis = heapq.heappop(q)
+            r, c, path, vis = q.popleft()
             if (r, c) == (fr, fc):
+                path += 'A'
                 if len(path) < d:
                     d = len(path)
                     paths = [path]
                 elif len(path) == d:
                     paths.append(path)
-                md = min(distance_from_A(path, pad), md)
-                mt = min(get_turns(path), mt)
 
             for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nr, nc = r + dr, c + dc
@@ -86,22 +85,17 @@ def prime(pad):
                 if pad[nr, nc] == ' ':
                     continue
 
-                n = get_turns(path)
-                if len(path) > 0 and path[-1] != ds[(dr, dc)]:
-                    n += 1
-
-                heapq.heappush(
-                    q, (n, nr, nc, path + ds[(dr, dc)], vis | {(nr, nc)}))
-        return sorted(filter(lambda x: get_turns(x) == mt, paths), key=lambda x: distance_from_A(x, pad), reverse=True)
+                q.append((nr, nc, path + ds[(dr, dc)], vis | {(nr, nc)}))
+        return paths
 
     fastest = {}
-    for i in pad.reshape(-1):
-        for j in pad.reshape(-1):
+    for i in map(str, pad.reshape(-1)):
+        for j in map(str, pad.reshape(-1)):
             if i == ' ' or j == ' ':
                 continue
 
             if i == j:
-                fastest[(i, j)] = ''
+                fastest[(i, j)] = ['A']
                 continue
 
             rc = np.where(pad == i)
@@ -115,6 +109,11 @@ def prime(pad):
             paths = []
     return fastest
 
+dpaths = prime(dpad)
+dlens = {k: len(v[0]) for k,v in dpaths.items()}
+kpaths = prime(keypad)
+klens = {k: len(v[0]) for k,v in kpaths.items()}
+
 
 def find_sequence(code, pad):
     R, C = np.shape(pad)
@@ -123,6 +122,7 @@ def find_sequence(code, pad):
 
     fastest = prime(pad)
 
+    @cache
     def dfs(i, path):
         nonlocal paths, dist
         if i == len(code):
@@ -137,46 +137,42 @@ def find_sequence(code, pad):
             return
 
         if not fastest[(code[i - 1], code[i])]:
-            dfs(i + 1, path + 'A')
+            dfs(i + 1, path)
         else:
             for p in fastest[(code[i - 1], code[i])]:
-                dfs(i + 1, path + p + 'A')
+                dfs(i + 1, path + p)
 
     for p in fastest[('A', code[0])]:
-        dfs(1, p + 'A')
+        dfs(1, p)
 
     return paths
 
 
-# p = 0
-# for code in codes:
-#     print(code)
-#     m = float('inf')
-#     for s in find_sequence(code, keypad):
-#         for r in find_sequence(s, dpad):
-#             q = find_sequence(r, dpad)
-#             m = min(m, len(list(q)[0]))
-#     print(m)
-#     p += m * \
-#         int("".join([c for c in code if c.isdigit()]))
-# print(p)
 
-# print(prime(keypad))
-print(find_sequence('029A', keypad))
-# print(find_sequence('>>v', dpad))
+"""
+what's the shortest way to do a single button press 25 levels deep?
 
-# p = 0
-# for code in codes:
-#     print(code)
-#     m = float('inf')
-#
-#     for s in find_sequence(code, keypad):
-#         r = s
-#         print(r)
-#         for _ in range(25):
-#             r = find_sequence(list(r)[0], dpad)
-#         q = find_sequence(r, dpad)
-#         m = min(m, len(list(q)[0]))
-#     p += m * \
-#         int("".join([c for c in code if c.isdigit()]))
-# print(p)
+"""
+
+@cache
+def find_length(seq, depth):
+    if depth == 1:
+        return sum(dlens[(pc, c)] for pc, c in zip('A' + seq, seq))
+
+    length = 0
+    for pc, c in zip('A' + seq, seq):
+        length += min(find_length(seq, depth - 1) for seq in dpaths[(pc, c)])
+
+    return length
+
+
+p = 0
+for code in codes:
+    paths = find_sequence(code, keypad)
+    m = float('inf')
+    for path in paths:
+        m = min(m, find_length(path, 25))
+    p += m * \
+        int("".join([c for c in code if c.isdigit()]))
+
+print(p)
