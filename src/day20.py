@@ -40,107 +40,27 @@ while q:
         if 0 <= nr < R and 0 <= nc < C and grid[nr, nc] != '#':
             q.append((nr, nc, t + 1, p + [(nr, nc)]))
 
-OT = T
+def reachable(r, c, t):
+    vis = set()
 
+    for d in range(t + 1):
+        for dr in range(d + 1):
+            dc = d - dr
+            for nr, nc in {(r + dr, c + dc), (r - dr, c + dc), (r + dr, c - dc), (r - dr, c - dc)}:
+                if (nr, nc) in path:
+                    vis.add((nr, nc, d))
+    return vis
 
-vis = {}
-
-
-HAS_CHEATED = 1
-IS_CHEATING = 2
-
-cheats = {}
-
-
-def reachable1(rr, cc, t, cheating):
-    if t == CT + 1:
-        return set()
-
-    if (rr, cc, t) in vis:
-        return vis[(rr, cc, t)]
-
-    ans = set()
-
-    if grid[rr, cc] == '.':  # Then this is done
-        ot = len(path[:path.index((rr, cc))])
-        if t < ot:
-            ans.add((rr, cc, t))
-
-    for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-        nr, nc = rr + dr, cc + dc
-        if not (0 <= nr < R and 0 <= nc < C):
-            continue
-        if grid[nr, nc] == '#':
-            if cheating & IS_CHEATING or cheating ^ HAS_CHEATED:
-                ans |= reachable(nr, nc, t + 1, cheating | IS_CHEATING)
-        else:
-            if cheating & IS_CHEATING:
-                ans |= reachable(nr, nc, t + 1, cheating |
-                                 HAS_CHEATED ^ IS_CHEATING)
-            if not cheating:
-                ans |= reachable(nr, nc, t + 1, cheating)
-
-    vis[(rr, cc, t)] = ans
-
-    return ans
-
-
-# def reachable(r, c, t):
-#     ans = set()
-#
-#     for dr in range(-CT, CT + 1):
-#         for dc in range(-CT, CT + 1):
-#             if abs(dr) + abs(dc) > CT:
-#                 continue
-#             nr, nc = r + dr, c + dc
-#             if 0 <= nr < R and 0 <= nr < C and grid[nr, nc] == '.':
-#                 if path.index((nr, nc)) < path.index((r, c)):
-#                     continue
-#                 if path.index((nr, nc)) - path.index((r, c)) >= MC:
-#                     CC += 1
-#     return ans
-#
-
-vis = {}
-
-
-def reachable(sr, sc, r, c, t):
-    if t == CT + 1:
-        return set()
-
-    ans = set()
-
-    if (r, c, t) in vis:
-        return vis[(r, c, t)]
-
-    if grid[r, c] == '.':
-        if t < path.index((r, c)) - path.index((sr, sc)):
-            ans.add((r, c, t))
-
-    for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-        nr, nc = r + dr, c + dc
-        if (nr, nc) in path and path.index((nr, nc)) <= path.index((sr, sc)):
-            continue
-        if 0 <= nr < R and 0 <= nc < C:
-            ans |= reachable(sr, sc, nr, nc, t + 1)
-
-    vis[(r, c, t)] = ans
-
-    return ans
-
-
-CT = 6
-TS = [0 for _ in range(OT)]
+MC = 20
+p = 0
+TS = [0 for _ in range(T)]
+cheats = set()
 for r, c in path:
-    for jr, jc, ts in reachable(r, c, r, c, 0):
-        if path.index((jr, jc)) <= path.index((r, c)):
-            continue
+    print(p, T)
+    p += 1
+    for nr, nc, t in reachable(r, c, MC):
+        t = len(path[:path.index((r, c))]) + t + len(path[path.index((nr, nc)):]) - 1
+        if t < T:
+            TS[T - t] += 1
+print(np.sum(TS[100:]))
 
-        t = len(path[:path.index((r, c))]) + len(path[path.index((jr, jc)):])
-        try:
-            TS[OT - t] += 1
-        except IndexError:
-            print(f"OOPS: {t}")
-
-
-print(TS)
