@@ -1,11 +1,14 @@
 #!/bin/env python5
 from collections import deque
 import numpy as np
+from timer import profiler
 
+
+@profiler
 def part1(sr, sc, fr, fc, walls):
     q = deque()
     pdr, pdc = (0, 1)
-    for dr, dc in [(0,1), (0, -1), (1, 0), (-1, 0)]:
+    for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
         if (dr, dc) == (pdr, pdc):
             nr, nc = sr + pdr, sc + pdc
             if (nr, nc) in walls:
@@ -30,7 +33,7 @@ def part1(sr, sc, fr, fc, walls):
         if p >= m:
             continue
 
-        for dr, dc in [(0,1), (0, -1), (1, 0), (-1, 0)]:
+        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             if (dr, dc) == (pdr, pdc):
                 nr, nc = r + dr, c + dc
 
@@ -42,10 +45,12 @@ def part1(sr, sc, fr, fc, walls):
     print(m)
     return m
 
+
+@profiler
 def part2(m, sr, sc, fr, fc, walls):
     q = deque()
     pdr, pdc = (0, 1)
-    for dr, dc in [(0,1), (0, -1), (1, 0), (-1, 0)]:
+    for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
         if (dr, dc) == (pdr, pdc):
             nr, nc = sr + pdr, sc + pdc
             if (nr, nc) in walls:
@@ -73,7 +78,7 @@ def part2(m, sr, sc, fr, fc, walls):
         if p >= M:
             continue
 
-        for dr, dc in [(0,1), (0, -1), (1, 0), (-1, 0)]:
+        for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             if (dr, dc) == (pdr, pdc):
                 nr, nc = r + dr, c + dc
 
@@ -100,4 +105,3 @@ with open(0) as file:
 
     m = part1(sr, sc, fr, fc, walls)
     part2(m, sr, sc, fr, fc, walls)
-

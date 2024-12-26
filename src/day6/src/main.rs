@@ -28,7 +28,7 @@ fn walk(mut r: isize, mut c: isize, grid: Vec<Vec<char>>) -> bool {
 }
 
 fn main() {
-    let input = std::fs::read_to_string("../AoC24/inputs/day6").unwrap();
+    let input = std::fs::read_to_string("../../inputs/day6").unwrap();
 
     let grid: Vec<Vec<char>> = input
         .trim()

@@ -1,28 +1,28 @@
 #!/bin/env python3
-from collections import deque
+from timer import profiler
 
-with open(0) as file:
-    stones = {int(i): 1 for i in file.readline().split(' ')}
 
-    for i in range(75):
+@profiler
+def solve(stones, n):
+    for i in range(n):
         new = {}
         for stone, count in stones.items():
             if stone == 0:
-                if not 1 in new:
+                if 1 not in new:
                     new[1] = 0
                 new[1] += count
             elif len(str(stone)) % 2 == 0:
                 s = str(stone)
-                s1,s2 = int(s[:len(s)//2]),int(s[len(s)//2:])
-                if not s1 in new:
+                s1, s2 = int(s[:len(s)//2]), int(s[len(s)//2:])
+                if s1 not in new:
                     new[s1] = 0
-                if not s2 in new:
+                if s2 not in new:
                     new[s2] = 0
                 new[s1] += count
                 new[s2] += count
             else:
                 c = stone * 2024
-                if not c in new:
+                if c not in new:
                     new[c] = 0
                 new[c] += count
         stones = new
@@ -31,3 +31,10 @@ with open(0) as file:
     for _, count in stones.items():
         s += count
     print(s)
+
+
+with open(0) as file:
+    stones = {int(i): 1 for i in file.readline().split(' ')}
+
+    solve(stones, 25)
+    solve(stones, 75)

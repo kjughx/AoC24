@@ -1,30 +1,42 @@
 #!/bin/env python3
 import re
+from timer import profiler
+
 
 def mul(a, b):
     return a * b
 
-pattern1 = re.compile(r"mul\(([0-9]+),[0-9]+\)")
-pattern2 = re.compile(r"mul\(([0-9]+),[0-9]+\)|(don't\(\))|(do\(\))")
-with open(0) as file:
-    p1 = 0
-    p2 = 0
+
+@profiler
+def part1(lines):
+    p = 0
+    pattern = re.compile(r"mul\(([0-9]+),([0-9]+)\)")
+    for line in lines:
+        for a, b in re.findall(pattern, line):
+            p += int(a) * int(b)
+    print(p)
+
+
+@profiler
+def part2(lines):
+    p = 0
+    pattern = re.compile(r"mul\(([0-9]+),([0-9]+)\)|(don't\(\))|(do\(\))")
     do = True
-    for line in file.readlines():
-        line = line.strip('\n')
-
-        for a in re.finditer(pattern1, line):
-            p1 += eval(a.group(0))
-
-        for a in re.finditer(pattern2, line):
-            m = a.group(0)
-            if m == "don't()":
+    for line in lines:
+        for a in re.findall(pattern, line):
+            if a[2] == "don't()":
                 do = False
                 continue
-            if m == "do()":
+            if a[3] == "do()":
                 do = True
                 continue
             if do:
-                p2 += eval(m)
+                p += int(a[0]) * int(a[1])
 
-    print(p1, p2)
+    print(p)
+
+
+with open(0) as file:
+    lines = [line.strip('\n') for line in file.readlines()]
+    part1(lines)
+    part2(lines)

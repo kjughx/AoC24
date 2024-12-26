@@ -1,4 +1,6 @@
 #!/bin/env python3
+from timer import profiler
+
 
 def valid(row, rules):
     for rule in rules:
@@ -7,6 +9,7 @@ def valid(row, rules):
             if row.index(r1) > row.index(r2):
                 return False
     return True
+
 
 def swap(row, rules):
     for rule in rules:
@@ -18,30 +21,19 @@ def swap(row, rules):
                 return True, row
     return False, row
 
-with open(0) as file:
-    rules = []
-    rows = []
-    rule = True
-    for line in file.readlines():
-        line = line.strip('\n')
-        if line == "":
-            rule = False
-            continue
 
-        if rule:
-            a,b = line.split("|")
-            rules += [[a, b]]
-            continue
-
-        rows.append(line.split(","))
-
-    p1 = 0
+@profiler
+def part1(rows, rules):
+    p = 0
     for row in rows:
         if valid(row, rules):
-            p1 += int(row[len(row) // 2])
-    print(p1)
+            p += int(row[len(row) // 2])
+    print(p)
 
-    p2 = 0
+
+@profiler
+def part2(rows, rules):
+    p = 0
     for row in rows:
         valid = True
         while True:
@@ -51,8 +43,14 @@ with open(0) as file:
             valid = False
 
         if not valid:
-            p2 += int(row[len(row) // 2])
-    print(p2)
+            p += int(row[len(row) // 2])
+    print(p)
 
 
+with open(0) as file:
+    rules, rows = file.read().split('\n\n')
+    rules = [rule.strip().split('|') for rule in rules.split('\n')]
+    rows = [row.strip().split(',') for row in rows.split('\n')[:-1]]
 
+    part1(rows, rules)
+    part2(rows, rules)

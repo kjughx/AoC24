@@ -1,9 +1,11 @@
 #!/bin/env python3
 
 import numpy as np
+from timer import profiler
 
-with open(0) as f:
-    data = f.readlines()
+
+@profiler
+def part1(data):
     left = np.array([int(r.split("  ")[0]) for r in data])
     right = np.array([int(r.split("  ")[1]) for r in data])
 
@@ -11,10 +13,19 @@ with open(0) as f:
     right = sorted(right)
 
     s = 0
-    for a,b in zip(left, right):
+    for a, b in zip(left, right):
         s += abs(a - b)
 
-    print(s) # part 1
+    print(s)  # part 1
+
+
+@profiler
+def part2(data):
+    left = np.array([int(r.split("  ")[0]) for r in data])
+    right = np.array([int(r.split("  ")[1]) for r in data])
+
+    left = sorted(left)
+    right = sorted(right)
 
     counts = {}
     for r in right:
@@ -28,3 +39,9 @@ with open(0) as f:
         if l in counts:
             s += l * counts[l]
     print(s)
+
+
+with open(0) as f:
+    data = f.readlines()
+    part1(data)
+    part2(data)

@@ -1,8 +1,8 @@
 #!/bin/env python3
 import numpy as np
-import heapq
 from collections import deque
 from functools import cache
+from timer import profiler
 
 # pylint: disable=C0114,C0116,C0301,C0209,W1514,C0414,C0200,E0001
 
@@ -109,10 +109,11 @@ def prime(pad):
             paths = []
     return fastest
 
+
 dpaths = prime(dpad)
-dlens = {k: len(v[0]) for k,v in dpaths.items()}
+dlens = {k: len(v[0]) for k, v in dpaths.items()}
 kpaths = prime(keypad)
-klens = {k: len(v[0]) for k,v in kpaths.items()}
+klens = {k: len(v[0]) for k, v in kpaths.items()}
 
 
 def find_sequence(code, pad):
@@ -148,11 +149,11 @@ def find_sequence(code, pad):
     return paths
 
 
-
 """
 what's the shortest way to do a single button press 25 levels deep?
 
 """
+
 
 @cache
 def find_length(seq, depth):
@@ -166,13 +167,19 @@ def find_length(seq, depth):
     return length
 
 
-p = 0
-for code in codes:
-    paths = find_sequence(code, keypad)
-    m = float('inf')
-    for path in paths:
-        m = min(m, find_length(path, 25))
-    p += m * \
-        int("".join([c for c in code if c.isdigit()]))
+@profiler
+def solve(dep):
+    p = 0
+    for code in codes:
+        paths = find_sequence(code, keypad)
+        m = float('inf')
+        for path in paths:
+            m = min(m, find_length(path, dep))
+        p += m * \
+            int("".join([c for c in code if c.isdigit()]))
 
-print(p)
+    print(p)
+
+
+solve(2)
+solve(25)

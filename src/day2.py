@@ -1,62 +1,76 @@
 #!/bin/env python3
+from timer import profiler
+
 
 def is_decreasing(lst):
     for a in range(1, len(lst)):
         if lst[a] > lst[a-1]:
             return False
     return True
+
+
 def is_ascending(lst):
     for a in range(1, len(lst)):
         if lst[a] < lst[a-1]:
             return False
     return True
 
-def is_safe_p1(lst):
-    safe = is_ascending(lst) or is_decreasing(lst)
 
-    j = line[0]
-    for i in lst[1::]:
-        if not (1 <= abs(i - j) <= 3):
-            safe = False
-            break
-        j = i
+@profiler
+def part1(lines):
+    def is_safe(lst):
+        safe = is_ascending(lst) or is_decreasing(lst)
 
-    return safe
+        j = line[0]
+        for i in lst[1::]:
+            if not (1 <= abs(i - j) <= 3):
+                safe = False
+                break
+            j = i
 
-def is_safe_p2(lst, first=True):
-    j = lst[0]
+        return safe
 
-    safe = False
+    p = 0
+    for line in lines:
+        p += 1 if is_safe(line) else 0
 
-    safe = is_ascending(lst) or is_decreasing(lst)
-    for i in lst[1::]:
-        if not (1 <= abs(i - j) <= 3):
-            safe = False
-            break
-        j = i
-    else:
-        safe &= True
-    if not safe and first:
-        for i in range(len(lst)):
-            new = [j for j in lst]
-            del new[i]
-            safe = is_safe_p2(new, False)
-            if safe:
-                return safe
+    print(p)
 
-    return safe
+
+@profiler
+def part2(lines):
+    def is_safe(lst, first=True):
+        j = lst[0]
+
+        safe = False
+
+        safe = is_ascending(lst) or is_decreasing(lst)
+        for i in lst[1::]:
+            if not (1 <= abs(i - j) <= 3):
+                safe = False
+                break
+            j = i
+        else:
+            safe &= True
+        if not safe and first:
+            for i in range(len(lst)):
+                new = [j for j in lst]
+                del new[i]
+                safe = is_safe(new, False)
+                if safe:
+                    return safe
+
+        return safe
+
+    p = 0
+    for line in lines:
+        p += 1 if is_safe(line) else 0
+
+    print(p)
+
 
 with open(0) as file:
-    p1 = 0
-    p2 = 0
-
-    for line in file.readlines():
-        line = line.strip('\n')
-        line = list(map(int, line.split(' ')))
-
-        p1 += 1 if is_safe_p1(line) else 0
-        p2 += 1 if is_safe_p2(line) else 0
-
-    print(p1, p2)
-
-
+    lines = [list(map(int, line.strip('\n').split(' ')))
+             for line in file.readlines()]
+    part1(lines)
+    part2(lines)

@@ -1,6 +1,6 @@
 from time import perf_counter_ns
 from typing import Any
-import os
+
 
 def profiler(method):
     def wrapper_method(*args: Any, **kwargs: Any) -> Any:

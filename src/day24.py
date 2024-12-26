@@ -7,9 +7,10 @@ from graphviz import Digraph
 
 lines = open(0).read()
 
+
 def show():
     dot = Digraph()
-    for a, op, b, c  in ops:
+    for i, (a, op, b, c) in enumerate(ops):
         dot.node(a, a)
         dot.node(b, b)
         dot.node(c, c)
@@ -27,6 +28,8 @@ for line in lines.split('\n\n')[0].split('\n'):
     bits[bit] = int(val)
 
 unfinished = defaultdict(list)
+
+
 def do_op(a, op, b, c):
     def opr(a, op, b):
         if op == 'AND':
@@ -51,13 +54,17 @@ def do_op(a, op, b, c):
             do_op(a, op, b, c)
 
 
-ops = [re.findall(r"([A-Za-z0-9]+)", line) for line in lines.split('\n\n')[1].strip().split('\n')]
+ops = [re.findall(r"([A-Za-z0-9]+)", line)
+       for line in lines.split('\n\n')[1].strip().split('\n')]
 gates = {}
+inputs = {}
 for a, op, b, c in ops:
     do_op(a, op, b, c)
     a, b = sorted([a, b])
     gates[(a, op, b)] = c
     gates[(b, op, a)] = c
+    inputs[(a, b)] = op
+    inputs[(b, a)] = op
 
 Z = list(sorted(filter(lambda x: x[0] == 'z', bits), reverse=True))
 output = [str(bits[z]) for z in Z]
@@ -67,16 +74,33 @@ Z = list(sorted(filter(lambda x: x[0] == 'z', bits), reverse=False))
 
 # show()
 
+
+def test(a, op, b):
+    try:
+        return True, gates[a, op, b]
+    except KeyError:
+        return False, op
+
+
 cin = 'prt'
 # This will print the first z that's incorrect
-for z in Z[1:]:
+for z in Z[1:-1]:
     i = z.split('z')[1]
+    carry1 = gates['x' + i, 'AND', 'y' + i]
+    inter_sum = gates['x' + i, 'XOR', 'y' + i]
     try:
-        carry1 = gates['x' + i, 'AND', 'y' + i]
-        inter_sum = gates['x' + i, 'XOR', 'y' + i]
+        op = inputs[cin, inter_sum]
+        if op != 'AND' and op != 'XOR':
+            print(op)
         carry2 = gates[cin, 'AND', inter_sum]
-        cout = gates[carry1, 'OR', carry2]
         sum = gates[inter_sum, 'XOR', cin]
+        op = inputs[carry1, carry2]
+        if op != 'OR':
+            print(op)
+        cout = gates[carry1, 'OR', carry2]
+
+        if sum[0] != 'z':
+            print(1, sum)
     except KeyError:
         print(z)
         continue
@@ -85,5 +109,6 @@ for z in Z[1:]:
 
     cin = cout
 
-wrong = ",".join(sorted(['z16', 'fkb', 'rqf', 'nnr', 'z31', 'rdn', 'z37', 'rrn']))
+wrong = ",".join(
+    sorted(['z16', 'fkb', 'rqf', 'nnr', 'z31', 'rdn', 'z37', 'rrn']))
 print(wrong)

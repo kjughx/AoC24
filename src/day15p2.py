@@ -1,6 +1,7 @@
 #!/bin/env python3
 import numpy as np
 
+
 def to_dir(c):
     if c == '^':
         return (-1, 0)
@@ -66,6 +67,7 @@ def pushrl(grid, r, c, dc, boxes):
 
     assert False
 
+
 with open(0) as file:
     _grid, moves = file.read().split('\n\n')
     moves = [move for move in moves if move != '\n']
@@ -90,6 +92,7 @@ with open(0) as file:
     r, c = pos[0][0], pos[1][0]
     grid[r, c] = '.'
     for i, move in enumerate(moves):
+
         dr, dc = to_dir(move)
         nr, nc = r + dr, c + dc
         if (nr, nc) in walls:
@@ -99,7 +102,8 @@ with open(0) as file:
         elif grid[nr, nc] in '[]':
             to_push = []
             if move in '^v':
-                to_push = pushud(grid, nr, nc, dr, [(nr, nc)]) if grid[nr, nc] == '['  else pushud(grid, nr, nc - 1, dr, [(nr, nc - 1)])
+                to_push = pushud(grid, nr, nc, dr, [(nr, nc)]) if grid[nr, nc] == '[' else pushud(
+                    grid, nr, nc - 1, dr, [(nr, nc - 1)])
             elif move == '>':
                 to_push = pushrl(grid, nr, nc, dc, [(nr, nc)])
             elif move == '<':
@@ -123,5 +127,3 @@ with open(0) as file:
     for r, c in zip(boxes[0], boxes[1]):
         p += 100 * r + c
     print(p)
-
-

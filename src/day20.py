@@ -1,6 +1,7 @@
 #!/bin/env python3
 from collections import deque
 import numpy as np
+from timer import profiler
 
 # pylsp: disable=E302,C0114,C0116,C0301,C0209,W1514,C0414,C0200,E0001
 
@@ -40,6 +41,7 @@ while q:
         if 0 <= nr < R and 0 <= nc < C and grid[nr, nc] != '#':
             q.append((nr, nc, t + 1, p + [(nr, nc)]))
 
+
 def reachable(r, c, t):
     vis = set()
 
@@ -51,16 +53,20 @@ def reachable(r, c, t):
                     vis.add((nr, nc, d))
     return vis
 
-MC = 20
-p = 0
-TS = [0 for _ in range(T)]
-cheats = set()
-for r, c in path:
-    print(p, T)
-    p += 1
-    for nr, nc, t in reachable(r, c, MC):
-        t = len(path[:path.index((r, c))]) + t + len(path[path.index((nr, nc)):]) - 1
-        if t < T:
-            TS[T - t] += 1
-print(np.sum(TS[100:]))
 
+@profiler
+def solve(MC):
+    p = 0
+    TS = [0 for _ in range(T)]
+    for r, c in path:
+        p += 1
+        for nr, nc, t in reachable(r, c, MC):
+            t = len(path[:path.index((r, c))]) + t + \
+                len(path[path.index((nr, nc)):]) - 1
+            if t < T:
+                TS[T - t] += 1
+    print(np.sum(TS[100:]))
+
+
+solve(2)
+# solve(20)

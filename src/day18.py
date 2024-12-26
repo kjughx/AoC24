@@ -1,6 +1,6 @@
 #!/bin/env python3
 import heapq
-
+from timer import profiler
 
 def walk(fr, fc, corr):
     q = [(0, 0, 0)]
@@ -32,6 +32,14 @@ def walk(fr, fc, corr):
             heapq.heappush(q, (nr, nc, n + 1))
     return m
 
+@profiler
+def part1():
+    R = 71
+    C = 71
+    grid = [['.' for _ in range(R)] for _ in range(R)]
+
+    corr = [(r, c) for r, c in bs[:1024]]
+    print(walk(R - 1, C - 1, corr))
 
 with open(0) as file:
     bs = [tuple(map(int, line.strip('\n').split(',')))
